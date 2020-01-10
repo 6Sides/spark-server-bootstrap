@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+}
+
+group 'dashflight'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // Spark server - http://sparkjava.com/
+    compile 'com.sparkjava:spark-core:2.8.0'
+
+    // GraphQL - https://www.graphql-java.com/
+    compile 'com.github.6Sides:graphql-java-annotations:master-SNAPSHOT'
+
+    // TODO: Remove AWS dependency - use env variables?
+    // Library to verify JWTs - https://github.com/6Sides/token-manager
+    implementation 'com.github.6Sides:token-manager:master-SNAPSHOT'
+    compile platform('com.amazonaws:aws-java-sdk-bom:1.11.228')
+    compile 'com.amazonaws:aws-java-sdk-s3'
+
+    // Jackson - https://github.com/FasterXML/jackson-databind
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+}

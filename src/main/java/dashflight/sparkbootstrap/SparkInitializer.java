@@ -127,6 +127,9 @@ public class SparkInitializer {
             String token = req.headers("Access-Token");
             String tokenFgp = req.cookie("Secure-Fgp");
 
+            System.out.println(token);
+            System.out.println(tokenFgp);
+
             URL url = new URL("https://api.dashflight.net/auth/verify");
             URLConnection conn = url.openConnection();
 

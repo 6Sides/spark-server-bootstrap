@@ -127,6 +127,10 @@ public class SparkInitializer {
         }
 
         Spark.before(graphQLEndpoint, (req, res) -> {
+            if (!req.requestMethod().equalsIgnoreCase("POST")) {
+                return;
+            }
+
             String token = req.headers("Access-Token");
             String tokenFgp = req.cookie("Secure-Fgp");
 

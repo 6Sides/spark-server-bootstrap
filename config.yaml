@@ -1,0 +1,8 @@
+access_key: AKIASXFSRO5JQEPXQZ7Z
+secret_key: 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
+bucket: dashflight-encryption-keys
+public_key: public_keys/initial_key.json
+private_key: private_keys/initial_key.json
+
+redis_host: localhost
+redis_port: 6379

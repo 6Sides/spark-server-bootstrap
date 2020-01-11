@@ -1,12 +1,18 @@
 package dashflight.sparkbootstrap;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dashflight.auth.TokenManagerConfiguration;
+import dashflight.auth.jwt.JwtVerifier;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.GraphQLException;
 import graphql.execution.instrumentation.tracing.TracingInstrumentation;
 import graphql.schema.GraphQLSchema;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,7 +77,7 @@ public class SparkInitializer {
      * based on the current environment. This must be called AFTER any modifications
      * to the server settings.
      */
-    public static void configure() {
+    public static void startServer() {
         if (graphQLEndpoint == null) {
             throw new IllegalStateException("You must specify a GraphQL endpoint! Generally it should "
                     + "be the name of the widget the api is written for (e.g. `/lost-and-found`, `/auth`, etc.)");
@@ -112,12 +118,35 @@ public class SparkInitializer {
         Spark.get("/ping", (req, res) -> "pong!");
 
 
+        //============================Authorization Endpoint=================================
+
+        try {
+            TokenManagerConfiguration.initializeWithValuesFrom(new FileInputStream(new File("config.yaml")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Spark.before(graphQLEndpoint, (req, res) -> {
+            String token = req.headers("Access-Token");
+            String tokenFgp = req.cookie("Secure-Fgp");
+
+            try {
+                System.out.println("Trying to decode");
+                DecodedJWT decodedJWT = new JwtVerifier().decodeJwtToken(token, tokenFgp);
+                System.out.println(decodedJWT.getPayload());
+            } catch (Exception e) {
+                System.out.println("Invalid token");
+                Spark.halt(401, "{\"message\" : \"You must be logged in to access this resource\"}");
+            }
+        });
+
+
         //============================GraphQL Configuration=================================
 
         ObjectMapper mapper = new ObjectMapper();
         GraphQL graphQL = getGraphQL();
 
-        Spark.post("/test", (req, res) -> {
+        Spark.post(graphQLEndpoint, (req, res) -> {
             Map<String, Object> data = mapper.readValue(
                         req.body(),
                         new TypeReference<HashMap<String, Object>>(){}

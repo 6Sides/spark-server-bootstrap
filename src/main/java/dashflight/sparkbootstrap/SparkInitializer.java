@@ -106,7 +106,7 @@ public class SparkInitializer {
         Spark.options("*", (req, res) -> res.raw());
 
         // Configure headers
-        Spark.after("*", (req, res) -> {
+        Spark.before("*", (req, res) -> {
             res.type("application/json");
             res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
             res.header("Access-Control-Allow-Origin", getOriginHeader());

@@ -1,18 +1,15 @@
 package dashflight.sparkbootstrap;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dashflight.auth.TokenManagerConfiguration;
-import dashflight.auth.jwt.JwtVerifier;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.GraphQLException;
 import graphql.execution.instrumentation.tracing.TracingInstrumentation;
 import graphql.schema.GraphQLSchema;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -120,11 +117,7 @@ public class SparkInitializer {
 
         //============================Authorization Endpoint=================================
 
-        try {
-            TokenManagerConfiguration.initializeWithValuesFrom(new FileInputStream(new File("config.yaml")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ObjectMapper mapper = new ObjectMapper();
 
         Spark.before(graphQLEndpoint, (req, res) -> {
             if (!req.requestMethod().equalsIgnoreCase("POST")) {
@@ -132,25 +125,26 @@ public class SparkInitializer {
             }
 
             String token = req.headers("Access-Token");
-            String tokenFgp = req.cookie("Secure-Fgp");
+            String tokenFgp = req.headers("Token-Fgp");
 
-            System.out.println("token: " + token);
-            System.out.println("token fgp: " + tokenFgp);
+            URL url = new URL("https://api.dashflight.net/auth/verify");
+            URLConnection conn = url.openConnection();
 
-            try {
-                System.out.println("Trying to decode");
-                DecodedJWT decodedJWT = new JwtVerifier().decodeJwtToken(token, tokenFgp);
-                System.out.println(decodedJWT.getPayload());
-            } catch (Exception e) {
-                System.out.println("Invalid token");
-                Spark.halt(401, "{\"message\" : \"You must be logged in to access this resource\"}");
+            conn.setRequestProperty("Access-Token", token);
+            conn.setRequestProperty("Token-Fgp", tokenFgp);
+
+            conn.setDoOutput(true);
+
+            Map<String, Boolean> response = mapper.readValue(conn.getInputStream(), new TypeReference<HashMap<String, Boolean>>(){});
+
+            if (!response.get("verified")) {
+                Spark.halt(401, "{\"message\": \"You are not authorized to access this resource\"}");
             }
         });
 
 
         //============================GraphQL Configuration=================================
 
-        ObjectMapper mapper = new ObjectMapper();
         GraphQL graphQL = getGraphQL();
 
         Spark.post(graphQLEndpoint, (req, res) -> {

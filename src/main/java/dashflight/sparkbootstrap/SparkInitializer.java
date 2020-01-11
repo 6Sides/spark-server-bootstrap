@@ -232,7 +232,8 @@ public class SparkInitializer {
                 "X-Requested-With",
                 "Content-Length",
                 "Accept",
-                "Origin"
+                "Origin",
+                "Cookie"
         )
     );
 

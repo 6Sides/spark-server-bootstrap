@@ -134,6 +134,9 @@ public class SparkInitializer {
             String token = req.headers("Access-Token");
             String tokenFgp = req.cookie("Secure-Fgp");
 
+            System.out.println("token: " + token);
+            System.out.println("token fgp: " + tokenFgp);
+
             try {
                 System.out.println("Trying to decode");
                 DecodedJWT decodedJWT = new JwtVerifier().decodeJwtToken(token, tokenFgp);

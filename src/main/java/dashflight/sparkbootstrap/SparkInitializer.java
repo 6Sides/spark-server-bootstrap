@@ -118,10 +118,11 @@ public class SparkInitializer {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        Spark.before(graphQLEndpoint, (req, res) -> {
-            if (!req.pathInfo().equalsIgnoreCase(graphQLEndpoint) || !req.requestMethod().equalsIgnoreCase("POST")) {
-                return;
-            }
+        //============================GraphQL Configuration=================================
+
+        GraphQL graphQL = getGraphQL();
+
+        Spark.post(graphQLEndpoint, (req, res) -> {
 
             String token = req.headers("Access-Token");
             String tokenFgp = req.cookie("Secure-Fgp");
@@ -137,19 +138,14 @@ public class SparkInitializer {
 
             conn.setDoOutput(true);
 
-            Map<String, Boolean> response = mapper.readValue(conn.getInputStream(), new TypeReference<HashMap<String, Boolean>>(){});
+            Map<String, Object> response = mapper.readValue(conn.getInputStream(), new TypeReference<HashMap<String, Boolean>>(){});
 
-            if (!response.get("verified")) {
+            if (!((Boolean) response.get("verified"))) {
                 Spark.halt(401, "{\"message\": \"Your current session is invalid. Please login again.\"}");
             }
-        });
 
+            RequestContext ctx = new RequestContext((String) response.get("user_id"));
 
-        //============================GraphQL Configuration=================================
-
-        GraphQL graphQL = getGraphQL();
-
-        Spark.post(graphQLEndpoint, (req, res) -> {
             Map<String, Object> data = mapper.readValue(
                         req.body(),
                         new TypeReference<HashMap<String, Object>>(){}
@@ -159,6 +155,7 @@ public class SparkInitializer {
                 ExecutionInput input = ExecutionInput.newExecutionInput()
                         .query((String) data.get("query"))
                         .variables((Map<String, Object>) data.get("variables"))
+                        .context(ctx)
                         .build();
 
                 return mapper.writeValueAsString(graphQL.execute(input).toSpecification());

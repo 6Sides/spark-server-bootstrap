@@ -3,6 +3,7 @@ package dashflight.sparkbootstrap;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import org.postgresql.util.PGobject;
 
 public class RequestContext {
 
@@ -29,7 +30,10 @@ public class RequestContext {
             }
 
             PreparedStatement stmt = conn.prepareStatement(hasRoleSQL);
-            stmt.setString(1, this.userId);
+            PGobject id = new PGobject();
+            id.setType("uuid");
+            id.setValue(this.userId);
+            stmt.setObject(1, id);
             stmt.setString(2, parts[0]);
             stmt.setString(3, parts[1]);
 

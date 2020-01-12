@@ -24,6 +24,9 @@ dependencies {
     // GraphQL - https://www.graphql-java.com/
     compile 'com.github.6Sides:graphql-java-annotations:master-SNAPSHOT'
 
+    // Postgres - Driver for postgres
+    compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'
+
     // Jackson - https://github.com/FasterXML/jackson-databind
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
 }

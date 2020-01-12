@@ -7,7 +7,6 @@ import graphql.GraphQL;
 import graphql.GraphQLException;
 import graphql.execution.instrumentation.tracing.TracingInstrumentation;
 import graphql.schema.GraphQLSchema;
-import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -120,7 +119,7 @@ public class SparkInitializer {
         ObjectMapper mapper = new ObjectMapper();
 
         Spark.before(graphQLEndpoint, (req, res) -> {
-            if (!req.requestMethod().equalsIgnoreCase("POST")) {
+            if (!req.pathInfo().equalsIgnoreCase(graphQLEndpoint) || !req.requestMethod().equalsIgnoreCase("POST")) {
                 return;
             }
 
@@ -141,7 +140,7 @@ public class SparkInitializer {
             Map<String, Boolean> response = mapper.readValue(conn.getInputStream(), new TypeReference<HashMap<String, Boolean>>(){});
 
             if (!response.get("verified")) {
-                Spark.halt(401, "{\"message\": \"You are not authorized to access this resource\"}");
+                Spark.halt(401, "{\"message\": \"Your current session is invalid. Please login again.\"}");
             }
         });
 

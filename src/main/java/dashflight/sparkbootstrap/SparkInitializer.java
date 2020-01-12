@@ -138,7 +138,7 @@ public class SparkInitializer {
 
             conn.setDoOutput(true);
 
-            Map<String, Object> response = mapper.readValue(conn.getInputStream(), new TypeReference<HashMap<String, Boolean>>(){});
+            Map<String, Object> response = mapper.readValue(conn.getInputStream(), new TypeReference<HashMap<String, Object>>(){});
 
             if (!((Boolean) response.get("verified"))) {
                 Spark.halt(401, "{\"message\": \"Your current session is invalid. Please login again.\"}");

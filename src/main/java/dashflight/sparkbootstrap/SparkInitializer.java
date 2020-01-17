@@ -123,28 +123,35 @@ public class SparkInitializer {
         GraphQL graphQL = getGraphQL();
 
         Spark.post(graphQLEndpoint, (req, res) -> {
+            RequestContext ctx;
+            if (environment == RuntimeEnvironment.DEVELOPMENT) {
+                ctx = new RequestContext("admin");
+            } else {
+                String token = req.headers("Access-Token");
+                String tokenFgp = req.cookie("Secure-Fgp");
 
-            String token = req.headers("Access-Token");
-            String tokenFgp = req.cookie("Secure-Fgp");
+                System.out.println(token);
+                System.out.println(tokenFgp);
 
-            System.out.println(token);
-            System.out.println(tokenFgp);
+                URL url = new URL("https://api.dashflight.net/auth/verify");
+                URLConnection conn = url.openConnection();
 
-            URL url = new URL("https://api.dashflight.net/auth/verify");
-            URLConnection conn = url.openConnection();
+                conn.setRequestProperty("Access-Token", token);
+                conn.setRequestProperty("Token-Fgp", tokenFgp);
 
-            conn.setRequestProperty("Access-Token", token);
-            conn.setRequestProperty("Token-Fgp", tokenFgp);
+                conn.setDoOutput(true);
 
-            conn.setDoOutput(true);
+                Map<String, Object> response = mapper.readValue(conn.getInputStream(),
+                        new TypeReference<HashMap<String, Object>>() {
+                        });
 
-            Map<String, Object> response = mapper.readValue(conn.getInputStream(), new TypeReference<HashMap<String, Object>>(){});
+                if (!((Boolean) response.get("verified"))) {
+                    Spark.halt(401,
+                            "{\"message\": \"Your current session is invalid. Please login again.\"}");
+                }
 
-            if (!((Boolean) response.get("verified"))) {
-                Spark.halt(401, "{\"message\": \"Your current session is invalid. Please login again.\"}");
+                ctx = new RequestContext((String) response.get("user_id"));
             }
-
-            RequestContext ctx = new RequestContext((String) response.get("user_id"));
 
             Map<String, Object> data = mapper.readValue(
                         req.body(),

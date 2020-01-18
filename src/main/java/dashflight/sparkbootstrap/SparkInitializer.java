@@ -4,19 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
-import graphql.GraphQLException;
-import graphql.execution.instrumentation.tracing.TracingInstrumentation;
-import graphql.schema.GraphQLSchema;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import schemabuilder.processor.GraphQLSchemaBuilder;
-import schemabuilder.processor.schema.SchemaParser;
-import schemabuilder.processor.wiring.GraphQLWiringBuilder;
-import schemabuilder.processor.wiring.GraphQLWiringBuilderOptions;
+import schemabuilder.processor.GraphQLBuilder;
 import spark.Spark;
 
 /**
@@ -28,8 +22,7 @@ public class SparkInitializer {
     private static RuntimeEnvironment environment;
 
     private static String graphQLEndpoint;
-    private static String basePackage = "";
-    private static String schemaFileExtension = "graphqls";
+    private static GraphQL graphQL;
 
     public static RuntimeEnvironment getEnvironment() {
         return environment;
@@ -60,20 +53,15 @@ public class SparkInitializer {
         allowedHeaders.add(headerType);
     }
 
-    public static void setBasePackage(String basePackage) {
-        SparkInitializer.basePackage = basePackage;
-    }
-
-    public static void setSchemaFileExtension(String schemaFileExtension) {
-        SparkInitializer.schemaFileExtension = schemaFileExtension;
-    }
-
     /**
      * Configures the Spark server with the necessary routes and headers
      * based on the current environment. This must be called AFTER any modifications
      * to the server settings.
      */
     public static void startServer() {
+        if (graphQL == null) {
+            throw new IllegalStateException("You must specify a GraphQL object to use");
+        }
         if (graphQLEndpoint == null) {
             throw new IllegalStateException("You must specify a GraphQL endpoint! Generally it should "
                     + "be the name of the widget the api is written for (e.g. `/lost-and-found`, `/auth`, etc.)");
@@ -114,13 +102,9 @@ public class SparkInitializer {
         Spark.get("/ping", (req, res) -> "pong!");
 
 
-        //============================Authorization Endpoint=================================
-
-        ObjectMapper mapper = new ObjectMapper();
-
         //============================GraphQL Configuration=================================
 
-        GraphQL graphQL = getGraphQL();
+        ObjectMapper mapper = new ObjectMapper();
 
         Spark.post(graphQLEndpoint, (req, res) -> {
             RequestContext ctx;
@@ -176,25 +160,8 @@ public class SparkInitializer {
         });
     }
 
-    private static GraphQL getGraphQL() {
-        try {
-            GraphQLSchema schema = new GraphQLSchemaBuilder(
-                    new SchemaParser("graphql_schema", schemaFileExtension),
-                    new GraphQLWiringBuilder(
-                            new GraphQLWiringBuilderOptions.Builder()
-                                    .basePackage(basePackage)
-                                    .shouldPrintHierarchy(true)
-                                    .build()
-                    )
-            ).getSchema();
-
-            return GraphQL.newGraphQL(schema)
-                    .instrumentation(new TracingInstrumentation())
-                    .build();
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new GraphQLException("Unable to build schema!");
-        }
+    public void setGraphQL(GraphQL gql) {
+        graphQL = gql;
     }
 
     /**

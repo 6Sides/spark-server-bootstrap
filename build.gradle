@@ -22,7 +22,7 @@ dependencies {
     compile 'com.sparkjava:spark-core:2.8.0'
 
     // GraphQL - https://www.graphql-java.com/
-    compile 'com.github.6Sides:graphql-java-annotations:master-SNAPSHOT'
+    compile 'com.github.6Sides:graphql-java-annotations:86a72ddd43'
 
     // Postgres - Driver for postgres
     compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'

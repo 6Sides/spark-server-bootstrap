@@ -160,7 +160,7 @@ public class SparkInitializer {
         });
     }
 
-    public void setGraphQL(GraphQL gql) {
+    public static void setGraphQL(GraphQL gql) {
         graphQL = gql;
     }
 

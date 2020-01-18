@@ -22,6 +22,7 @@ public class SparkInitializer {
 
     private static String graphQLEndpoint;
     private static GraphQL graphQL;
+    private static SparkRequestContextGenerator contextGenerator = new DefaultRequestContext();
 
     public static RuntimeEnvironment getEnvironment() {
         return environment;
@@ -29,6 +30,10 @@ public class SparkInitializer {
 
     public static void setGraphQLEndpoint(String graphQLEndpoint) {
         SparkInitializer.graphQLEndpoint = graphQLEndpoint;
+    }
+
+    public static void setContextGenerator(SparkRequestContextGenerator contextGenerator) {
+        SparkInitializer.contextGenerator = contextGenerator;
     }
 
     /**
@@ -106,9 +111,9 @@ public class SparkInitializer {
         ObjectMapper mapper = new ObjectMapper();
 
         Spark.post(graphQLEndpoint, (req, res) -> {
-            RequestContext ctx;
+            Object ctx;
             if (environment == RuntimeEnvironment.DEVELOPMENT) {
-                ctx = new RequestContext("admin");
+                ctx = contextGenerator.createContext("admin");
             } else {
                 String token = req.headers("Access-Token");
                 String tokenFgp = req.cookie("Secure-Fgp");
@@ -125,15 +130,14 @@ public class SparkInitializer {
                 conn.setDoOutput(true);
 
                 Map<String, Object> response = mapper.readValue(conn.getInputStream(),
-                        new TypeReference<HashMap<String, Object>>() {
-                        });
+                        new TypeReference<HashMap<String, Object>>(){});
 
                 if (!((Boolean) response.get("verified"))) {
                     Spark.halt(401,
                             "{\"message\": \"Your current session is invalid. Please login again.\"}");
                 }
 
-                ctx = new RequestContext((String) response.get("user_id"));
+                ctx = contextGenerator.createContext((String) response.get("user_id"));
             }
 
             Map<String, Object> data = mapper.readValue(

@@ -1,11 +1,12 @@
 package dashflight.sparkbootstrap;
 
+import core.directives.auth.PermissionCheck;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.postgresql.util.PGobject;
 
-public class RequestContext {
+public class RequestContext implements PermissionCheck {
 
     private Connection conn = DatabaseManager.getConnection();
     private String userId;
@@ -22,11 +23,12 @@ public class RequestContext {
                     + "permissions.prefix = ? and\n"
                     + "permissions.name = ?";
 
-    public boolean hasRole(String role) {
+    @Override
+    public boolean hasPermission(String permission) {
         if (this.userId.equals("admin")) return true;
 
         try {
-            String[] parts = role.split(":");
+            String[] parts = permission.split(":");
             if (parts.length != 2) {
                 throw new IllegalArgumentException("The role is malformed. Valid role: `prefix:permission`");
             }

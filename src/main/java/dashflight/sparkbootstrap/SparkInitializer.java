@@ -113,37 +113,18 @@ public class SparkInitializer {
         Spark.post(graphQLEndpoint, (req, res) -> {
             Object ctx;
             if (environment == RuntimeEnvironment.DEVELOPMENT) {
-                ctx = contextGenerator.createContext("admin");
+                ctx = contextGenerator.createContext("0", "0");
             } else {
                 String token = req.headers("Access-Token");
                 String tokenFgp = req.cookie("Secure-Fgp");
 
-                System.out.println(token);
-                System.out.println(tokenFgp);
-
-                URL url = new URL("https://api.dashflight.net/auth/verify");
-                URLConnection conn = url.openConnection();
-
-                conn.setRequestProperty("Access-Token", token);
-                conn.setRequestProperty("Token-Fgp", tokenFgp);
-
-                conn.setDoOutput(true);
-
-                Map<String, Object> response = mapper.readValue(conn.getInputStream(),
-                        new TypeReference<HashMap<String, Object>>(){});
-
-                if (!((Boolean) response.get("verified"))) {
-                    Spark.halt(401,
-                            "{\"message\": \"Your current session is invalid. Please login again.\"}");
-                }
-
-                ctx = contextGenerator.createContext((String) response.get("user_id"));
+                ctx = contextGenerator.createContext(token, tokenFgp);
             }
 
             Map<String, Object> data = mapper.readValue(
-                        req.body(),
-                        new TypeReference<HashMap<String, Object>>(){}
-                    );
+                req.body(),
+                new TypeReference<HashMap<String, Object>>(){}
+            );
 
             try {
                 ExecutionInput input = ExecutionInput.newExecutionInput()

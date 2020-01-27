@@ -64,7 +64,7 @@ public class SparkInitializer {
      */
     public static void startServer() {
         if (graphQL == null) {
-            throw new IllegalStateException("You must specify a GraphQL object to use");
+            //throw new IllegalStateException("You must specify a GraphQL object to use");
         }
         if (graphQLEndpoint == null) {
             throw new IllegalStateException("You must specify a GraphQL endpoint! Generally it should "
@@ -184,7 +184,9 @@ public class SparkInitializer {
                 "Content-Length",
                 "Accept",
                 "Origin",
-                "Cookie"
+                "Cookie",
+                "Access-Token",
+                "Secure-Fgp"
         )
     );
 

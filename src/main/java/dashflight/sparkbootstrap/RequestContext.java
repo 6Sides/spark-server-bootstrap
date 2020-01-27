@@ -4,17 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.directives.auth.PermissionCheck;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.postgresql.util.PGobject;
-import spark.HaltException;
-import spark.Spark;
 
 public class RequestContext implements PermissionCheck {
 
@@ -32,14 +29,14 @@ public class RequestContext implements PermissionCheck {
     }
 
     private void authenticate() {
-        if (this.token.equals("0") && this.tokenFgp.equals("0")) {
+        if ("development".equals(System.getenv("environment"))) {
             this.userId = "admin";
             return;
         }
 
         try {
             URL url = new URL("https://api.dashflight.net/auth/verify");
-            URLConnection conn = url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestProperty("Access-Token", this.token);
             conn.setRequestProperty("Token-Fgp", this.tokenFgp);
@@ -90,5 +87,9 @@ public class RequestContext implements PermissionCheck {
         }
 
         return false;
+    }
+
+    public String getId() {
+        return this.userId;
     }
 }

@@ -168,7 +168,7 @@ public class SparkInitializer {
         switch(environment) {
             case DEVELOPMENT:
             case STAGING:
-                return "http://localhost:3000";
+                return "http://dashflight.net";
             case PRODUCTION:
                 return "https://www.dashflight.net";
         }

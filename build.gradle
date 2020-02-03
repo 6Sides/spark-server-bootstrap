@@ -28,6 +28,10 @@ dependencies {
     // Postgres - Driver for postgres
     compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'
 
+    // https://github.com/brettwooldridge/HikariCP/tree/dev
+    compile 'com.zaxxer:HikariCP:3.4.2'
+
     // Jackson - https://github.com/FasterXML/jackson-databind
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+
 }

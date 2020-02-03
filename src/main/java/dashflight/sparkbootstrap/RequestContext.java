@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +17,8 @@ import org.postgresql.util.PGobject;
 public class RequestContext implements PermissionCheck {
 
     private static ObjectMapper mapper = new ObjectMapper();
-    private static Connection conn = DatabaseManager.getConnection();
 
-    private String userId;
+    private String userId, organization;
     private String token, tokenFgp;
 
     public RequestContext(String token, String tokenFgp) {
@@ -31,6 +31,7 @@ public class RequestContext implements PermissionCheck {
     private void authenticate() {
         if ("development".equals(System.getenv("environment"))) {
             this.userId = "admin";
+            this.organization = "admin_organization";
             return;
         }
 
@@ -48,6 +49,26 @@ public class RequestContext implements PermissionCheck {
             );
 
             this.userId = (String) response.get("user_id");
+
+            try (Connection con = PostgresConnectionPool.getConnection()) {
+                String SQL = "select organization from accounts.users where id = ? limit 1";
+                PreparedStatement stmt = con.prepareStatement(SQL);
+
+                PGobject uid = new PGobject();
+                uid.setType("uuid");
+                uid.setValue(this.userId);
+
+                stmt.setObject(1, uid);
+
+                ResultSet res = stmt.executeQuery();
+
+                if (res.next()) {
+                    this.organization = res.getString("organization");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,7 +88,7 @@ public class RequestContext implements PermissionCheck {
 
         if (this.userId.equals("admin")) return true;
 
-        try {
+        try(Connection conn = PostgresConnectionPool.getConnection()) {
             String[] parts = permission.split(":");
             if (parts.length != 2) {
                 throw new IllegalArgumentException("The role is malformed. Valid role: `prefix:permission`");
@@ -91,5 +112,9 @@ public class RequestContext implements PermissionCheck {
 
     public String getId() {
         return this.userId;
+    }
+
+    public String getOrganization() {
+        return this.organization;
     }
 }

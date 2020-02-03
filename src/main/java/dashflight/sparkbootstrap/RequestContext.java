@@ -29,12 +29,6 @@ public class RequestContext implements PermissionCheck {
     }
 
     private void authenticate() {
-        if ("development".equals(System.getenv("environment"))) {
-            this.userId = "admin";
-            this.organization = "admin_organization";
-            return;
-        }
-
         try {
             URL url = new URL("https://api.dashflight.net/auth/verify");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -63,7 +57,7 @@ public class RequestContext implements PermissionCheck {
                 ResultSet res = stmt.executeQuery();
 
                 if (res.next()) {
-                    this.organization = res.getString("organization");
+                    this.organization = res.getString("organization").toLowerCase();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

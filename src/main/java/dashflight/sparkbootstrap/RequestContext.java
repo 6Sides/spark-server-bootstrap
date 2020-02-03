@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.directives.auth.PermissionCheck;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
 import org.postgresql.util.PGobject;
 
 public class RequestContext implements PermissionCheck {
@@ -31,7 +31,7 @@ public class RequestContext implements PermissionCheck {
     private void authenticate() {
         try {
             URL url = new URL("https://api.dashflight.net/auth/verify");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 
             conn.setRequestProperty("Access-Token", this.token);
             conn.setRequestProperty("Token-Fgp", this.tokenFgp);

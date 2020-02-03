@@ -36,8 +36,6 @@ public class RequestContext implements PermissionCheck {
             conn.setRequestProperty("Access-Token", this.token);
             conn.setRequestProperty("Token-Fgp", this.tokenFgp);
 
-            conn.setDoOutput(true);
-
             Map<String, Object> response = mapper.readValue(conn.getInputStream(),
                 new TypeReference<HashMap<String, Object>>() {}
             );

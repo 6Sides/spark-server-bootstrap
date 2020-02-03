@@ -112,14 +112,11 @@ public class SparkInitializer {
 
         Spark.post(graphQLEndpoint, (req, res) -> {
             Object ctx;
-            if (environment == RuntimeEnvironment.DEVELOPMENT) {
-                ctx = contextGenerator.createContext("0", "0");
-            } else {
-                String token = req.headers("Access-Token");
-                String tokenFgp = req.cookie("Secure-Fgp");
 
-                ctx = contextGenerator.createContext(token, tokenFgp);
-            }
+            String token = req.headers("Access-Token");
+            String tokenFgp = req.cookie("Secure-Fgp");
+
+            ctx = contextGenerator.createContext(token, tokenFgp);
 
             Map<String, Object> data = mapper.readValue(
                 req.body(),

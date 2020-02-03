@@ -57,11 +57,11 @@ public class RequestContext implements PermissionCheck {
                 if (res.next()) {
                     this.organization = res.getString("organization").toLowerCase();
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

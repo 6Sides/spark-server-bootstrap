@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository;
 import spark.Spark;
 
 /**
@@ -127,6 +128,7 @@ public class SparkInitializer {
                 ExecutionInput input = ExecutionInput.newExecutionInput()
                         .query((String) data.get("query"))
                         .variables((Map<String, Object>) data.get("variables"))
+                        .dataLoaderRegistry(DataLoaderRepository.getInstance().getDataLoaderRegistry())
                         .context(ctx)
                         .build();
 

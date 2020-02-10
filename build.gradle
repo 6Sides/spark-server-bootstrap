@@ -21,9 +21,9 @@ dependencies {
     // Spark server - http://sparkjava.com/
     compile 'com.sparkjava:spark-core:2.8.0'
 
-    compile 'com.github.6Sides:config-file-injector:4fb1d2b2c8'
+    compile 'com.github.6Sides:config-file-injector:e88865c0f2'
 
-    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.228')
+    compile platform('com.amazonaws:aws-java-sdk-bom:1.11.228')
     implementation 'com.amazonaws:aws-java-sdk-s3'
 
     compile 'com.graphql-java:graphql-java:11.0'
@@ -46,6 +46,9 @@ dependencies {
     compile group: 'org.jdbi', name: 'jdbi3-sqlobject', version: '3.12.0'
 
     compile group: 'org.jdbi', name: 'jdbi3-guava', version: '3.12.0'
+
+    // https://mvnrepository.com/artifact/org.jdbi/jdbi3-testing
+    testCompile group: 'org.jdbi', name: 'jdbi3-testing', version: '3.12.0'
 
 
     // Jackson - https://github.com/FasterXML/jackson-databind

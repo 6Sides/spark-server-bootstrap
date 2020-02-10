@@ -2,10 +2,9 @@ package dashflight.sparkbootstrap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import config.parser.ConfigurationInjector;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,6 +77,8 @@ public class SparkInitializer {
             environment = RuntimeEnvironment.fromString(System.getenv("environment"));
         }
 
+        ConfigurationInjector.withApplication("spark-bootstrap-base", "dashflight.sparkbootstrap");
+
         //============================Basic Configuration=================================
 
         Spark.port(port);
@@ -139,7 +140,7 @@ public class SparkInitializer {
 
             Spark.halt(400, "Whoops! Something went wrong");
 
-            return "";
+            return "An error occurred.";
         });
     }
 

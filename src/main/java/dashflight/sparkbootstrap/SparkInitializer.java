@@ -167,8 +167,9 @@ public class SparkInitializer {
     private static String getOriginHeader() {
         switch(environment) {
             case DEVELOPMENT:
-            case STAGING:
                 return "http://dashflight.net";
+            case STAGING:
+                return "https://staging.dashflight.net";
             case PRODUCTION:
                 return "https://www.dashflight.net";
         }

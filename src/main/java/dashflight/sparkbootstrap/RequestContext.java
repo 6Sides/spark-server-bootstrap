@@ -17,8 +17,10 @@ public class RequestContext implements PermissionCheck {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
-    private String userId, organization;
+    private String userId;
     private String token, tokenFgp;
+
+    private Organization organization;
 
     public RequestContext(String token, String tokenFgp) {
         this.token = token;
@@ -42,7 +44,9 @@ public class RequestContext implements PermissionCheck {
             this.userId = (String) response.get("user_id");
 
             try (Connection con = PostgresConnectionPool.getConnection()) {
-                String SQL = "select organization from accounts.users where id = ? limit 1";
+                String SQL = "select name as organization, organizations.id as id from accounts.users "
+                        + "inner join accounts.organizations on users.organization_id = organizations.id "
+                        + "where users.id = ? limit 1";
                 PreparedStatement stmt = con.prepareStatement(SQL);
 
                 PGobject uid = new PGobject();
@@ -54,7 +58,10 @@ public class RequestContext implements PermissionCheck {
                 ResultSet res = stmt.executeQuery();
 
                 if (res.next()) {
-                    this.organization = res.getString("organization").toLowerCase();
+                    this.organization = new Organization(
+                            res.getInt("id"),
+                            res.getString("organization")
+                    );
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -105,7 +112,7 @@ public class RequestContext implements PermissionCheck {
         return this.userId;
     }
 
-    public String getOrganization() {
+    public Organization getOrganization() {
         return this.organization;
     }
 }

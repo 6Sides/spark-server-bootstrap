@@ -4,6 +4,8 @@ import core.directives.auth.PermissionCheck;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import org.postgresql.util.PGobject;
 
 /*
@@ -15,11 +17,13 @@ public class RequestContext implements PermissionCheck {
     private final String userId;
     private final Organization organization;
     private final Location homeLocation;
+    private final List<Location> locations;
 
-    public RequestContext(String userId, Organization organization, Location homeLocation) {
+    public RequestContext(String userId, Organization organization, Location homeLocation, List<Location> locations) {
         this.userId = userId;
         this.organization = organization;
         this.homeLocation = homeLocation;
+        this.locations = locations;
     }
 
     private static final String hasRoleSQL =
@@ -56,7 +60,7 @@ public class RequestContext implements PermissionCheck {
         return false;
     }
 
-    public String getId() {
+    public String getUserId() {
         return this.userId;
     }
 
@@ -66,5 +70,9 @@ public class RequestContext implements PermissionCheck {
 
     public Location getHomeLocation() {
         return this.homeLocation;
+    }
+
+    public List<Location> getLocations() {
+        return Collections.unmodifiableList(this.locations);
     }
 }

@@ -6,7 +6,9 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.postgresql.util.PGobject;
@@ -20,6 +22,7 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
         String userId = null;
         Organization organization = null;
         Location homeLocation = null;
+        List<Location> locations = new ArrayList<>();
 
         try {
             URL url = new URL("https://api.dashflight.net/auth/verify");
@@ -64,10 +67,32 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
                 e.printStackTrace();
             }
 
+            try (Connection con = PostgresConnectionPool.getConnection()) {
+                String SQL = "select locations.id, locations.name from accounts.user_locations "
+                        + "inner join accounts.locations on user_locations.location_id = locations.id "
+                        + "where user_id = ?";
+
+                PreparedStatement stmt = con.prepareStatement(SQL);
+
+                PGobject uid = new PGobject();
+                uid.setType("uuid");
+                uid.setValue(userId);
+
+                stmt.setObject(1, uid);
+
+                ResultSet res = stmt.executeQuery();
+                while (res.next()) {
+                    locations.add(new Location(res.getInt("id"), res.getString("name")));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return new RequestContext(userId, organization, homeLocation);
+        return new RequestContext(userId, organization, homeLocation, locations);
     }
 }

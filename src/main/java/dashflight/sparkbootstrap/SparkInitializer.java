@@ -22,7 +22,7 @@ public class SparkInitializer {
 
     private static String graphQLEndpoint;
     private static GraphQL graphQL;
-    private static SparkRequestContextGenerator contextGenerator = new DefaultRequestContext();
+    private static SparkRequestContextGenerator contextGenerator = new DefaultRequestContextProvider();
 
     public static RuntimeEnvironment getEnvironment() {
         return environment;

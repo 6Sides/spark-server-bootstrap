@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.postgresql.util.PGobject;
 
 /*
@@ -74,5 +75,14 @@ public class RequestContext implements PermissionCheck {
 
     public List<Location> getLocations() {
         return Collections.unmodifiableList(this.locations);
+    }
+
+    public int[] getLocationIds() {
+        int[] result = new int[this.locations.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = this.locations.get(i).getId();
+        }
+
+        return result;
     }
 }

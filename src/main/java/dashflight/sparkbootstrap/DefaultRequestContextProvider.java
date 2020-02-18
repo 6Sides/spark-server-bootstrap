@@ -17,6 +17,9 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
 
     private static ObjectMapper mapper = new ObjectMapper();
 
+    private static String prodURL = "https://api.dashflight.net/auth/verify";
+    private static String devURL = "https://api-staging.dashflight.net/auth/verify";
+
     @Override
     public Object createContext(String token, String tokenFgp) {
         String userId = null;
@@ -25,7 +28,7 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
         List<Location> locations = new ArrayList<>();
 
         try {
-            URL url = new URL("https://api.dashflight.net/auth/verify");
+            URL url = new URL(System.getenv("environment").equalsIgnoreCase("production") ? prodURL : devURL);
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 
             conn.setRequestProperty("Access-Token", token);

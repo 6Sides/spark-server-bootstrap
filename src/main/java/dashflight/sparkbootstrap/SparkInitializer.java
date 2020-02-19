@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import net.dashflight.postgres.PostgresConnectionPool;
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository;
 import spark.Spark;
 
@@ -77,7 +78,8 @@ public class SparkInitializer {
             environment = RuntimeEnvironment.fromString(System.getenv("environment"));
         }
 
-        ConfigurationInjector.withApplication("spark-bootstrap-base", "net.dashflight");
+        ConfigurationInjector.withApplication("spark-bootstrap-base", "net.dashflight.postgres");
+        PostgresConnectionPool.setApplicationName(graphQLEndpoint.substring(1));
 
         //============================Basic Configuration=================================
 

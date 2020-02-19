@@ -77,7 +77,7 @@ public class SparkInitializer {
             environment = RuntimeEnvironment.fromString(System.getenv("environment"));
         }
 
-        ConfigurationInjector.withApplication("spark-bootstrap-base", "dashflight.sparkbootstrap");
+        ConfigurationInjector.withApplication("spark-bootstrap-base", "net.dashflight");
 
         //============================Basic Configuration=================================
 

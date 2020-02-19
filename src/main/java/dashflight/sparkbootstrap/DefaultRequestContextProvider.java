@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
+import net.dashflight.postgres.PostgresConnectionPool;
 import org.postgresql.util.PGobject;
 
 public class DefaultRequestContextProvider implements SparkRequestContextGenerator {

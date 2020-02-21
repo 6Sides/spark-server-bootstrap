@@ -32,8 +32,8 @@ public class RequestContext implements PermissionCheck {
                     + "inner join accounts.permissions "
                     + "on user_permissions.permission_id = permissions.id "
                     + "where user_permissions.user_id = ? and "
-                    + "permissions.prefix = ? and "
-                    + "permissions.name = ?";
+                    + "(permissions.prefix = ? and ("
+                    + "permissions.name = ? or permissions.name = 'all'))";
 
     @Override
     public Object hasPermission(String permission) {

@@ -39,6 +39,8 @@ public class RequestContext implements PermissionCheck {
     public Object hasPermission(String permission) {
         if (this.userId == null) {
             return new UnauthenticatedErrorResponse();
+        } else if (permission == null) {
+            return null;
         }
 
         try(Connection conn = PostgresConnectionPool.getConnection()) {
@@ -92,7 +94,7 @@ public class RequestContext implements PermissionCheck {
 
     private static class UnauthenticatedErrorResponse {
         private static String type = "Authentication Error";
-        private static String title = "You have not authenticated";
+        private static String title = "You are not authenticated";
         private static String message = "Either your session has expired or you have authenticated improperly. Try logging in again at https://www.dashflight.net/login";
     }
 

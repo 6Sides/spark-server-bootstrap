@@ -36,8 +36,10 @@ public class RequestContext implements PermissionCheck {
                     + "permissions.name = ?";
 
     @Override
-    public boolean hasPermission(String permission) {
-        if (this.userId == null) return false;
+    public Object hasPermission(String permission) {
+        if (this.userId == null) {
+            return new UnauthenticatedErrorResponse();
+        }
 
         try(Connection conn = PostgresConnectionPool.getConnection()) {
             String[] parts = permission.split(":");
@@ -53,12 +55,14 @@ public class RequestContext implements PermissionCheck {
             stmt.setString(2, parts[0]);
             stmt.setString(3, parts[1]);
 
-            return stmt.executeQuery().next();
+            if (stmt.executeQuery().next()) {
+                return null;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return false;
+        return new UnauthorizedErrorResponse();
     }
 
     public String getUserId() {
@@ -84,5 +88,17 @@ public class RequestContext implements PermissionCheck {
         }
 
         return result;
+    }
+
+    private static class UnauthenticatedErrorResponse {
+        private static String type = "Authentication Error";
+        private static String title = "You have not authenticated";
+        private static String message = "Either your session has expired or you have authenticated improperly. Try logging in again at https://www.dashflight.net/login";
+    }
+
+    private static class UnauthorizedErrorResponse {
+        private static String type = "Authorization Error";
+        private static String title = "You are not authorized to access this resource";
+        private static String message = "Your account does not have access to this resource. Contact your system administrator if you believe this is a mistake.";
     }
 }

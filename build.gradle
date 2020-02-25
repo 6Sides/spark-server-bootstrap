@@ -22,7 +22,7 @@ dependencies {
     compile 'com.sparkjava:spark-core:2.8.0'
 
     compile 'com.github.6Sides:graphql-java-annotations:44b83a2e98'
-    implementation 'com.github.6Sides:data-utils:fff80b4110'
+    implementation 'com.github.6Sides:data-utils:2c60ebbea3'
 
     compile platform('com.amazonaws:aws-java-sdk-bom:1.11.228')
     implementation 'com.amazonaws:aws-java-sdk-s3'
@@ -51,5 +51,8 @@ dependencies {
 
     // Jackson - https://github.com/FasterXML/jackson-databind
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+
+
+    implementation 'com.github.6Sides:jwt-utils:615ac51dab'
 
 }

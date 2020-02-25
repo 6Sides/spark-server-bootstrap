@@ -1,25 +1,18 @@
 package dashflight.sparkbootstrap;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URL;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import dashflight.jwt.JwtUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import javax.net.ssl.HttpsURLConnection;
-import net.dashflight.postgres.PostgresConnectionPool;
+import net.dashflight.data.postgres.PostgresConnectionPool;
 import org.postgresql.util.PGobject;
 
 public class DefaultRequestContextProvider implements SparkRequestContextGenerator {
 
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private static String prodURL = "https://api.dashflight.net/auth/verify";
-    private static String devURL = "https://api-staging.dashflight.net/auth/verify";
+    private static JwtUtil jwtUtil = new JwtUtil();
 
     @Override
     public Object createContext(String token, String tokenFgp) {
@@ -29,17 +22,10 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
         List<Location> locations = new ArrayList<>();
 
         try {
-            URL url = new URL(System.getenv("environment").equalsIgnoreCase("production") ? prodURL : devURL);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-
-            conn.setRequestProperty("Access-Token", token);
-            conn.setRequestProperty("Token-Fgp", tokenFgp);
-
-            Map<String, Object> response = mapper.readValue(conn.getInputStream(),
-                    new TypeReference<HashMap<String, Object>>() {}
-            );
-
-            userId = (String) response.get("user_id");
+            DecodedJWT result = jwtUtil.verifySession(token, tokenFgp);
+            if (result != null) {
+                userId = result.getClaim("user_id").asString();
+            }
 
             try (Connection con = PostgresConnectionPool.getConnection()) {
                 String SQL = "select organizations.id as org_id, organizations.name as org_name, locations.id as home_location_id, locations.name as home_location_name from accounts.users "

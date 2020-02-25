@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import net.dashflight.postgres.PostgresConnectionPool;
+import net.dashflight.data.postgres.PostgresConnectionPool;
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository;
 import spark.Spark;
 

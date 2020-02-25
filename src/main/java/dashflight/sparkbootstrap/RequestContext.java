@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import net.dashflight.postgres.PostgresConnectionPool;
+import net.dashflight.data.postgres.PostgresConnectionPool;
 import org.postgresql.util.PGobject;
 
 /*
@@ -35,6 +35,11 @@ public class RequestContext implements PermissionCheck {
                     + "(permissions.prefix = ? and ("
                     + "permissions.name = ? or permissions.name = 'all'))";
 
+    /**
+     * Returning null means user has permission.
+     * @param permission
+     * @return
+     */
     @Override
     public Object hasPermission(String permission) {
         if (this.userId == null) {

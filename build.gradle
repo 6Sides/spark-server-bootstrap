@@ -53,6 +53,6 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
 
 
-    implementation 'com.github.6Sides:jwt-utils:615ac51dab'
+    implementation 'com.github.6Sides:jwt-utils:b780f56b5b'
 
 }

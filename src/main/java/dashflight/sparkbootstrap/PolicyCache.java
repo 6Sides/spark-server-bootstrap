@@ -25,15 +25,17 @@ public class PolicyCache extends BasicRedisCache {
 
             Transaction trans = client.multi();
             trans.exists(userId.toString());
+            trans.get(userId.toString());
             trans.sismember(userId.toString(), policyId);
 
             List<Object> response = trans.exec();
+
 
             if (response.get(0).equals(false)) {
                 this.cacheUserPolicies(userId);
                 return this.check(userId, policyId);
             } else {
-                result = response.get(1).equals(true);
+                result = response.get(2).equals(true) || response.get(1).equals("admin");
             }
         }
 
@@ -41,8 +43,21 @@ public class PolicyCache extends BasicRedisCache {
     }
 
     private void cacheUserPolicies(UUID userId) {
-        String[] policyIds = jdbi.withExtension(PolicyCheckDao.class, dao -> dao.getUserPolicies(userId));
-        this.sadd(userId.toString(), policyIds);
-        this.setKeyExpire(userId.toString(), 3600 * 24);
+        try (Jedis client = pool.getResource()) {
+            Transaction trans = client.multi();
+
+            boolean isAdmin = jdbi.withExtension(PolicyCheckDao.class, dao -> dao.checkIfUserIsAdmin(userId));
+
+            if (isAdmin) {
+                trans.set(userId.toString(), "admin");
+            } else {
+                String[] policyIds = jdbi.withExtension(PolicyCheckDao.class, dao -> dao.getUserPolicies(userId));
+                trans.sadd(userId.toString(), policyIds);
+            }
+
+            trans.expire(userId.toString(), 3600 * 24);
+
+            trans.exec();
+        }
     }
 }

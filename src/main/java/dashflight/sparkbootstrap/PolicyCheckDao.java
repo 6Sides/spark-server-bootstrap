@@ -11,4 +11,7 @@ public interface PolicyCheckDao {
     @SqlQuery
     String[] getUserPolicies(@Bind("userId") UUID userId);
 
+    @SqlQuery
+    boolean checkIfUserIsAdmin(@Bind("userId") UUID userId);
+
 }

@@ -9,6 +9,6 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 public interface PolicyCheckDao {
 
     @SqlQuery
-    Boolean checkUserPermission(@Bind("userId") UUID userId, @Bind("policy") String policy);
+    String[] getUserPolicies(@Bind("userId") UUID userId);
 
 }

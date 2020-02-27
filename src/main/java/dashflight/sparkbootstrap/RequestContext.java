@@ -4,8 +4,6 @@ import core.directives.auth.PermissionCheck;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import net.dashflight.data.postgres.PostgresConnectionPool;
-import org.jdbi.v3.core.Jdbi;
 
 /*
 TODO: Remove any logic / database queries from class. Should be immutable POJO.
@@ -18,12 +16,16 @@ public class RequestContext implements PermissionCheck {
     private final Location homeLocation;
     private final List<Location> locations;
 
+    private PolicyCache policyCache = new PolicyCache();
+    
+
     public RequestContext(UUID userId, Organization organization, Location homeLocation, List<Location> locations) {
         this.userId = userId;
         this.organization = organization;
         this.homeLocation = homeLocation;
         this.locations = locations;
     }
+
 
 
     /**
@@ -39,10 +41,8 @@ public class RequestContext implements PermissionCheck {
             return null;
         }
 
-        Jdbi jdbi = PostgresConnectionPool.getJdbi();
-        boolean hasPermission = jdbi.withExtension(PolicyCheckDao.class, dao -> dao.checkUserPermission(this.userId, permission));
 
-        if (hasPermission) {
+        if (policyCache.check(this.userId, permission)) {
             return null;
         }
 

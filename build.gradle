@@ -22,7 +22,7 @@ dependencies {
     compile 'com.sparkjava:spark-core:2.8.0'
 
     compile 'com.github.6Sides:graphql-java-annotations:48fbad3263'
-    implementation 'com.github.6Sides:data-utils:ad6ed6bc0c'
+    implementation 'com.github.6Sides:data-utils:6ae10199af'
 
     compile platform('com.amazonaws:aws-java-sdk-bom:1.11.228')
     implementation 'com.amazonaws:aws-java-sdk-s3'

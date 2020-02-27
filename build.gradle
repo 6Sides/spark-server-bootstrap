@@ -21,7 +21,7 @@ dependencies {
     // Spark server - http://sparkjava.com/
     compile 'com.sparkjava:spark-core:2.8.0'
 
-    compile 'com.github.6Sides:graphql-java-annotations:9f67c58299'
+    compile 'com.github.6Sides:graphql-java-annotations:91f9608526'
     implementation 'com.github.6Sides:data-utils:2c60ebbea3'
 
     compile platform('com.amazonaws:aws-java-sdk-bom:1.11.228')

@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.dashflight.data.postgres.PostgresConnectionPool;
 import org.postgresql.util.PGobject;
 
@@ -83,6 +84,6 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
             e.printStackTrace();
         }
 
-        return new RequestContext(userId, organization, homeLocation, locations);
+        return new RequestContext(userId != null ? UUID.fromString(userId) : null, organization, homeLocation, locations);
     }
 }

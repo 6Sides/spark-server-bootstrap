@@ -1,13 +1,11 @@
 package dashflight.sparkbootstrap;
 
 import core.directives.auth.PermissionCheck;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import net.dashflight.data.postgres.PostgresConnectionPool;
-import org.postgresql.util.PGobject;
+import org.jdbi.v3.core.Jdbi;
 
 /*
 TODO: Remove any logic / database queries from class. Should be immutable POJO.
@@ -15,25 +13,18 @@ TODO: Remove any logic / database queries from class. Should be immutable POJO.
  */
 public class RequestContext implements PermissionCheck {
 
-    private final String userId;
+    private final UUID userId;
     private final Organization organization;
     private final Location homeLocation;
     private final List<Location> locations;
 
-    public RequestContext(String userId, Organization organization, Location homeLocation, List<Location> locations) {
+    public RequestContext(UUID userId, Organization organization, Location homeLocation, List<Location> locations) {
         this.userId = userId;
         this.organization = organization;
         this.homeLocation = homeLocation;
         this.locations = locations;
     }
 
-    private static final String hasRoleSQL =
-            "select description from accounts.user_permissions "
-                    + "inner join accounts.permissions "
-                    + "on user_permissions.permission_id = permissions.id "
-                    + "where user_permissions.user_id = ? and "
-                    + "(permissions.prefix = ? and ("
-                    + "permissions.name = ? or permissions.name = 'all'))";
 
     /**
      * Returning null means user has permission.
@@ -48,31 +39,17 @@ public class RequestContext implements PermissionCheck {
             return null;
         }
 
-        try(Connection conn = PostgresConnectionPool.getConnection()) {
-            String[] parts = permission.split(":");
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("The role is malformed. Valid role: `prefix:permission`");
-            }
+        Jdbi jdbi = PostgresConnectionPool.getJdbi();
+        boolean hasPermission = jdbi.withExtension(PolicyCheckDao.class, dao -> dao.checkUserPermission(this.userId, permission));
 
-            PreparedStatement stmt = conn.prepareStatement(hasRoleSQL);
-            PGobject id = new PGobject();
-            id.setType("uuid");
-            id.setValue(this.userId);
-            stmt.setObject(1, id);
-            stmt.setString(2, parts[0]);
-            stmt.setString(3, parts[1]);
-
-            if (stmt.executeQuery().next()) {
-                return null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (hasPermission) {
+            return null;
         }
 
         return new UnauthorizedErrorResponse();
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return this.userId;
     }
 

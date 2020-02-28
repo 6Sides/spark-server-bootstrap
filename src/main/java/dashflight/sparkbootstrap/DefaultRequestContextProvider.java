@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.dashflight.data.postgres.PostgresConnectionPool;
+import net.dashflight.data.postgres.PostgresFactory;
 import org.postgresql.util.PGobject;
 
 public class DefaultRequestContextProvider implements SparkRequestContextGenerator {
@@ -28,7 +28,7 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
                 userId = result.getClaim("user_id").asString();
             }
 
-            try (Connection con = PostgresConnectionPool.getConnection()) {
+            try (Connection con = PostgresFactory.withDefaults().getConnection()) {
                 String SQL = "select organizations.id as org_id, organizations.name as org_name, locations.id as home_location_id, locations.name as home_location_name from accounts.users "
                         + "inner join accounts.organizations on users.organization_id = organizations.id "
                         + "left join accounts.locations on users.home_location_id = locations.id "
@@ -58,7 +58,7 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
                 e.printStackTrace();
             }
 
-            try (Connection con = PostgresConnectionPool.getConnection()) {
+            try (Connection con = PostgresFactory.withDefaults().getConnection()) {
                 String SQL = "select locations.id, locations.name from accounts.user_locations "
                         + "inner join accounts.locations on user_locations.location_id = locations.id "
                         + "where user_id = ?";

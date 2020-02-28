@@ -2,14 +2,13 @@ package dashflight.sparkbootstrap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import config.parser.ConfigurationInjector;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import net.dashflight.data.postgres.PostgresConnectionPool;
+import net.dashflight.data.RuntimeEnvironment;
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository;
 import spark.Spark;
 
@@ -78,8 +77,6 @@ public class SparkInitializer {
             environment = RuntimeEnvironment.fromString(System.getenv("environment"));
         }
 
-        ConfigurationInjector.withApplication("spark-bootstrap-base", "net.dashflight.postgres");
-        PostgresConnectionPool.setApplicationName(graphQLEndpoint.substring(1));
 
         //============================Basic Configuration=================================
 

@@ -1,6 +1,6 @@
 package dashflight.sparkbootstrap;
 
-import core.directives.auth.PermissionCheck;
+import core.directives.auth.PolicyCheck;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -9,7 +9,7 @@ import java.util.UUID;
 TODO: Remove any logic / database queries from class. Should be immutable POJO.
         Will require refactor of GraphQL annotation library auth directive.
  */
-public class RequestContext implements PermissionCheck {
+public class RequestContext implements PolicyCheck {
 
     private final UUID userId;
     private final Organization organization;
@@ -27,14 +27,13 @@ public class RequestContext implements PermissionCheck {
     }
 
 
-
     /**
      * Returning null means user has permission.
      * @param permission
      * @return
      */
     @Override
-    public Object hasPermission(String permission) {
+    public Object hasPermission(Integer permission) {
         if (this.userId == null) {
             return new UnauthenticatedErrorResponse();
         } else if (permission == null) {

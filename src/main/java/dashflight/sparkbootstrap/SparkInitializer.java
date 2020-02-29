@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import net.dashflight.data.RuntimeEnvironment;
+import net.dashflight.data.config.RuntimeEnvironment;
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository;
 import spark.Spark;
 

@@ -22,10 +22,10 @@ dependencies {
     compile 'com.sparkjava:spark-core:2.8.0'
 
 
-    compile 'com.github.6Sides:graphql-java-annotations:78813d5b79'
+    compile 'com.github.6Sides:graphql-java-annotations:b6cf4e3787'
 
-    implementation 'com.github.6Sides:data-utils:65014267d4'
-    implementation ('com.github.6Sides:jwt-utils:4b76ebbf75') {
+    implementation 'com.github.6Sides:data-utils:06389f1b43'
+    implementation ('com.github.6Sides:jwt-utils:feb9f9a936') {
         exclude module: 'data-utils'
     }
 

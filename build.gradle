@@ -24,8 +24,8 @@ dependencies {
 
     compile 'com.github.6Sides:graphql-java-annotations:b6cf4e3787'
 
-    implementation 'com.github.6Sides:data-utils:06389f1b43'
-    implementation ('com.github.6Sides:jwt-utils:8142fbd69e') {
+    implementation 'com.github.6Sides:data-utils:ac6aa08e6e'
+    implementation ('com.github.6Sides:jwt-utils:63b2361a4a') {
         exclude module: 'data-utils'
     }
 

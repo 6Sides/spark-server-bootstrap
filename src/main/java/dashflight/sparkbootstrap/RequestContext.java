@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import net.dashflight.data.postgres.PostgresFactory;
 
 /*
@@ -34,7 +35,7 @@ public class RequestContext implements PolicyCheck {
     }
 
 
-    private static Map<String, Integer> policyIdMap = new HashMap<>();
+    private static Map<String, Integer> policyIdMap = new ConcurrentHashMap<>();
 
     /**
      * Returning null means user has permission.

@@ -1,13 +1,13 @@
 package dashflight.sparkbootstrap;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import dashflight.jwt.JwtVerifier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.dashflight.data.jwt.JwtVerifier;
 import net.dashflight.data.postgres.PostgresFactory;
 import org.postgresql.util.PGobject;
 

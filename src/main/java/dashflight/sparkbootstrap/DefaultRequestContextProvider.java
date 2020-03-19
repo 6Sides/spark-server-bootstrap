@@ -22,8 +22,6 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
         Location homeLocation = null;
         List<Location> locations = new ArrayList<>();
 
-        System.out.println("Token: " + token);
-        System.out.println("Token Fingerprint: " + tokenFgp);
 
         try {
             DecodedJWT result = jwtUtil.verifySession(token, tokenFgp);

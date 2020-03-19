@@ -22,7 +22,7 @@ dependencies {
     compile 'com.sparkjava:spark-core:2.8.0'
 
 
-    compile 'com.github.6Sides:graphql-java-annotations:b6cf4e3787'
+    compile 'com.github.6Sides:graphql-java-annotations:1ece948e24'
 
     implementation 'com.github.6Sides:data-utils:ac6aa08e6e'
     implementation ('com.github.6Sides:jwt-utils:63b2361a4a') {

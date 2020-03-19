@@ -21,6 +21,10 @@ public class PolicyCache {
 
 
     public boolean check(UUID userId, Integer policyId) {
+        if (policyId == null) {
+            return false;
+        }
+
         return this.checkHelper(userId, policyId, false);
     }
 

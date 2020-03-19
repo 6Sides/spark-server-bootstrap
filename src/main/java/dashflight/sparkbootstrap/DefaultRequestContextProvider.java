@@ -1,7 +1,7 @@
 package dashflight.sparkbootstrap;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import dashflight.jwt.JwtUtil;
+import dashflight.jwt.JwtVerifier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +13,7 @@ import org.postgresql.util.PGobject;
 
 public class DefaultRequestContextProvider implements SparkRequestContextGenerator {
 
-    private static JwtUtil jwtUtil = new JwtUtil();
+    private static JwtVerifier jwtUtil = new JwtVerifier();
 
     @Override
     public Object createContext(String token, String tokenFgp) {
@@ -24,7 +24,7 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
 
 
         try {
-            DecodedJWT result = jwtUtil.verifySession(token, tokenFgp);
+            DecodedJWT result = jwtUtil.decodeJwtToken(token, tokenFgp);
             if (result != null) {
                 userId = result.getClaim("user_id").asString();
             }

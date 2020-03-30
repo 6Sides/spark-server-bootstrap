@@ -2,8 +2,15 @@ package dashflight.sparkbootstrap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import core.instrumentation.ThrottleInstrumentation;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+import graphql.execution.instrumentation.ChainedInstrumentation;
+import graphql.execution.instrumentation.Instrumentation;
+import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
+import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentationOptions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,7 +29,12 @@ public class SparkInitializer {
 
     private static String graphQLEndpoint;
     private static GraphQL graphQL;
-    private static SparkRequestContextGenerator contextGenerator = new DefaultRequestContextProvider();
+    private static SparkRequestContextGenerator contextGenerator;
+
+    @Inject
+    public static void setSparkRequestCtxGenerator(SparkRequestContextGenerator gen) {
+        contextGenerator = gen;
+    }
 
     public static RuntimeEnvironment getEnvironment() {
         return environment;
@@ -64,7 +76,7 @@ public class SparkInitializer {
      */
     public static void startServer() {
         if (graphQL == null) {
-            //throw new IllegalStateException("You must specify a GraphQL object to use");
+            throw new IllegalStateException("You must specify a GraphQL object to use");
         }
         if (graphQLEndpoint == null) {
             throw new IllegalStateException("You must specify a GraphQL endpoint! Generally it should "
@@ -110,6 +122,8 @@ public class SparkInitializer {
         //============================GraphQL Configuration=================================
 
         ObjectMapper mapper = new ObjectMapper();
+
+        graphQL.transform(builder -> builder.instrumentation(getInstrumentation()));
 
         Spark.post(graphQLEndpoint, (req, res) -> {
             Object ctx;
@@ -199,6 +213,17 @@ public class SparkInitializer {
         }
 
         throw new IllegalStateException("The current environment is not supported");
+    }
+
+    private static Instrumentation getInstrumentation() {
+        return new ChainedInstrumentation(
+                ImmutableList.of(
+                        new ThrottleInstrumentation(true),
+                        new DataLoaderDispatcherInstrumentation(
+                                DataLoaderDispatcherInstrumentationOptions.newOptions().includeStatistics(!environment.equals(RuntimeEnvironment.PRODUCTION))
+                        )
+                )
+        );
     }
 
 }

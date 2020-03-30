@@ -1,19 +1,28 @@
 package dashflight.sparkbootstrap;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.dashflight.data.jwt.JwtVerifier;
-import net.dashflight.data.postgres.PostgresFactory;
+import net.dashflight.data.jwt.verify.JwtVerifier;
+import net.dashflight.data.postgres.PostgresClient;
 import org.postgresql.util.PGobject;
 
 public class DefaultRequestContextProvider implements SparkRequestContextGenerator {
 
-    private static JwtVerifier jwtUtil = new JwtVerifier();
+    private final JwtVerifier jwtVerifier;
+    private final PostgresClient postgresClient;
+
+    @Inject
+    public DefaultRequestContextProvider(PostgresClient postgresClient, JwtVerifier jwtVerifier) {
+        this.jwtVerifier = jwtVerifier;
+        this.postgresClient = postgresClient;
+    }
+
 
     @Override
     public Object createContext(String token, String tokenFgp) {
@@ -24,12 +33,12 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
 
 
         try {
-            DecodedJWT result = jwtUtil.decodeJwtToken(token, tokenFgp);
+            DecodedJWT result = jwtVerifier.verifyToken(token, tokenFgp);
             if (result != null) {
                 userId = result.getClaim("user_id").asString();
             }
 
-            try (Connection con = PostgresFactory.withDefaults().getConnection()) {
+            try (Connection con = postgresClient.getConnection()) {
                 String SQL = "select organizations.id as org_id, organizations.name as org_name, locations.id as home_location_id, locations.name as home_location_name from accounts.users "
                         + "inner join accounts.organizations on users.organization_id = organizations.id "
                         + "left join accounts.locations on users.home_location_id = locations.id "
@@ -59,7 +68,7 @@ public class DefaultRequestContextProvider implements SparkRequestContextGenerat
                 e.printStackTrace();
             }
 
-            try (Connection con = PostgresFactory.withDefaults().getConnection()) {
+            try (Connection con = postgresClient.getConnection()) {
                 String SQL = "select locations.id, locations.name from accounts.user_locations "
                         + "inner join accounts.locations on user_locations.location_id = locations.id "
                         + "where user_id = ?";

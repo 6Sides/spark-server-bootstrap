@@ -1,9 +1,10 @@
 package dashflight.sparkbootstrap;
 
+import com.google.inject.Inject;
 import java.util.List;
 import java.util.UUID;
-import net.dashflight.data.postgres.PostgresFactory;
-import net.dashflight.data.redis.RedisFactory;
+import net.dashflight.data.postgres.PostgresClient;
+import net.dashflight.data.redis.RedisClient;
 import org.jdbi.v3.core.Jdbi;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -16,9 +17,14 @@ public class PolicyCache {
 
     private static final int KEY_TTL = 3600 * 24;
 
-    private static Jdbi jdbi = PostgresFactory.withDefaults().getJdbi();
-    private static JedisPool redisPool = RedisFactory.withDefaults().getPool();
+    private final Jdbi jdbi;
+    private final JedisPool redisPool;
 
+    @Inject
+    public PolicyCache(PostgresClient postgresClient, RedisClient redisClient) {
+        this.jdbi = postgresClient.getJdbi();
+        this.redisPool = redisClient.getPool();
+    }
 
     public boolean check(UUID userId, Integer policyId) {
         if (policyId == null) {

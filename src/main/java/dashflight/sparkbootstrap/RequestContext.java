@@ -1,17 +1,25 @@
 package dashflight.sparkbootstrap;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import core.directives.auth.PolicyCheck;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import net.dashflight.data.postgres.PostgresFactory;
+import net.dashflight.data.jwt.DashflightJwtUtilModule;
+import net.dashflight.data.keys.DashflightRSAKeyPairModule;
+import net.dashflight.data.mfa.DashflightMfaModule;
+import net.dashflight.data.postgres.DashflightPostgresClientModule;
+import net.dashflight.data.postgres.PostgresClient;
+import net.dashflight.data.redis.DashflightRedisClientModule;
 
 /*
 TODO: Remove any logic / database queries from class. Should be immutable POJO.
@@ -24,7 +32,22 @@ public class RequestContext implements PolicyCheck {
     private final Location homeLocation;
     private final List<Location> locations;
 
-    private PolicyCache policyCache = new PolicyCache();
+    private static Injector injector = Guice.createInjector(new DashflightJwtUtilModule(),
+            new DashflightRSAKeyPairModule(),
+            new DashflightMfaModule(),
+            new DashflightRedisClientModule(),
+            new DashflightPostgresClientModule(),
+            new AbstractModule() {
+                @Override
+                protected void configure() {
+                    requestStaticInjection(SparkInitializer.class);
+                    bind(SparkRequestContextGenerator.class).to(DefaultRequestContextProvider.class);
+                }
+            }
+    );
+
+    private PolicyCache policyCache = injector.getInstance(PolicyCache.class);
+    private PostgresClient postgresClient = injector.getInstance(PostgresClient.class);
     
 
     public RequestContext(UUID userId, Organization organization, Location homeLocation, List<Location> locations) {
@@ -51,7 +74,7 @@ public class RequestContext implements PolicyCheck {
         }
 
         policyIdMap.computeIfAbsent(policy, p -> {
-            try (Connection conn = PostgresFactory.withDefaults().getConnection()) {
+            try (Connection conn = postgresClient.getConnection()) {
                 PreparedStatement stmt = conn.prepareStatement("select id from accounts.policies where prefix = ? and name = ?");
 
                 String[] parts = policy.split(":");

@@ -128,7 +128,7 @@ public class SparkInitializer {
         Spark.post(graphQLEndpoint, (req, res) -> {
             Object ctx;
 
-            String token = req.headers("Access-Token");
+            String token = req.headers("Authorization").replace("Bearer ", "");
             String tokenFgp = req.cookie("Secure-Fgp");
 
             ctx = contextGenerator.createContext(token, tokenFgp);

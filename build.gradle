@@ -21,7 +21,7 @@ dependencies {
     // Spark server - http://sparkjava.com/
     compile 'com.sparkjava:spark-core:2.8.0'
 
-    compile 'com.github.6Sides:graphql-java-annotations:1ece948e24'
+    compile 'com.github.6Sides:graphql-java-annotations:acb0fe8b58'
     compile 'com.github.6Sides:data-utils:9a41a6a89b'
 
 

@@ -2,9 +2,9 @@ package dashflight.sparkbootstrap
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.inject.Inject
 import graphql.ExecutionInput
-import graphql.GraphQL
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository
 import spark.Request
 import spark.Response
@@ -66,7 +66,7 @@ class SparkInitializer @Inject constructor(private val configuration: BuiltSpark
         if (configuration.graphQL == null) return
 
         //============================GraphQL Configuration=================================
-        val mapper = ObjectMapper()
+        val mapper = ObjectMapper().registerModule(KotlinModule())
         // configuration.graphQL.transform { builder: GraphQL.Builder -> builder.instrumentation(configuration.instrumentation) }
         Spark.post(configuration.graphqlEndpoint) { req: Request, _: Response? ->
             val ctx: Any?

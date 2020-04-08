@@ -85,10 +85,10 @@ class SparkInitializer @Inject constructor(private val configuration: BuiltSpark
                 val input = ExecutionInput.newExecutionInput()
                         .query(data["query"] as String?)
                         .variables(data["variables"] as Map<String?, Any?>?)
-                        .dataLoaderRegistry(DataLoaderRepository.getInstance().dataLoaderRegistry)
+                        .dataLoaderRegistry(DataLoaderRepository.dataLoaderRegistry)
                         .context(ctx)
                         .build()
-                return@post mapper.writeValueAsString(configuration.graphQL?.execute(input)?.toSpecification())
+                return@post mapper.writeValueAsString(configuration.graphQL.execute(input)?.toSpecification())
             } catch (e: ClassCastException) {
                 Spark.halt(400, "The variables supplied were malformed")
             }

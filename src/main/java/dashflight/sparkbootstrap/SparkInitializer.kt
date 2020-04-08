@@ -74,10 +74,10 @@ class SparkInitializer @Inject constructor(private val configuration: BuiltSpark
             val tokenFgp = req.cookie("Secure-Fgp")
             ctx = configuration.contextProvider.createContext(token, tokenFgp)
 
-            println("$req.body()")
+            println("${req.body()}")
 
             val data: Map<String, Any?> = mapper.readValue(
-                    "$req.body()",
+                    "${req.body()}",
                     object : TypeReference<HashMap<String, Any?>>() {}
             )
             try {

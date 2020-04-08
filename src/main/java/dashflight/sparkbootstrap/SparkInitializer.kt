@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.Inject
 import graphql.ExecutionInput
+import graphql.GraphQL
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository
 import spark.Request
 import spark.Response
@@ -66,15 +67,18 @@ class SparkInitializer @Inject constructor(private val configuration: BuiltSpark
 
         //============================GraphQL Configuration=================================
         val mapper = ObjectMapper()
-        //graphQL!!.transform { builder: GraphQL.Builder -> builder.instrumentation(instrumentation) }
+        // configuration.graphQL.transform { builder: GraphQL.Builder -> builder.instrumentation(configuration.instrumentation) }
         Spark.post(configuration.graphqlEndpoint) { req: Request, _: Response? ->
             val ctx: Any?
             val token = req.headers("Authorization")?.replace("Bearer ", "")
             val tokenFgp = req.cookie("Secure-Fgp")
             ctx = configuration.contextProvider.createContext(token, tokenFgp)
-            val data: Map<String, Any> = mapper.readValue(
+
+            println(req.body())
+
+            val data: Map<String, Any?> = mapper.readValue(
                     req.body(),
-                    object : TypeReference<HashMap<String, Any>>() {}
+                    object : TypeReference<HashMap<String, Any?>>() {}
             )
             try {
                 val input = ExecutionInput.newExecutionInput()

@@ -12,7 +12,11 @@ class DefaultRequestContextProvider @Inject constructor(
         private val jwtVerifier: JwtVerifier
 ) : SparkRequestContextProvider {
 
-    override fun createContext(token: String, tokenFgp: String): RequestContext? {
+    override fun createContext(token: String?, tokenFgp: String?): RequestContext? {
+        if (token == null || tokenFgp == null) {
+            return null
+        }
+
         var userId: String? = null
 
         when (val response = jwtVerifier.verifyToken(token, tokenFgp)) {

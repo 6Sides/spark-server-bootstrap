@@ -2,16 +2,8 @@ package dashflight.sparkbootstrap
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.collect.ImmutableList
 import com.google.inject.Inject
-import core.instrumentation.ThrottleInstrumentation
 import graphql.ExecutionInput
-import graphql.GraphQL
-import graphql.execution.instrumentation.ChainedInstrumentation
-import graphql.execution.instrumentation.Instrumentation
-import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation
-import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentationOptions
-import net.dashflight.data.config.RuntimeEnvironment
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository
 import spark.Request
 import spark.Response
@@ -77,7 +69,7 @@ class SparkInitializer @Inject constructor(private val configuration: BuiltSpark
         //graphQL!!.transform { builder: GraphQL.Builder -> builder.instrumentation(instrumentation) }
         Spark.post(configuration.graphqlEndpoint) { req: Request, _: Response? ->
             val ctx: Any?
-            val token = req.headers("Authorization").replace("Bearer ", "")
+            val token = req.headers("Authorization")?.replace("Bearer ", "")
             val tokenFgp = req.cookie("Secure-Fgp")
             ctx = configuration.contextProvider.createContext(token, tokenFgp)
             val data: Map<String, Any> = mapper.readValue(

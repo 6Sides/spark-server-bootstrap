@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.inject.Inject
+import com.google.inject.Singleton
 import graphql.ExecutionInput
 import schemabuilder.processor.pipelines.parsing.dataloaders.DataLoaderRepository
 import spark.Request
@@ -14,7 +15,8 @@ import java.util.*
 /**
  * Initializes the Spark server based on the current environment.
  */
-class SparkInitializer @Inject constructor(private val configuration: BuiltSparkInitializerConfiguration) {
+@Singleton
+class SparkInitializer @Inject constructor(private val configBuilder: SparkInitializerConfiguration) {
 
     /**
      * Overrides the environment specified by the system's `environment` env variable.
@@ -36,6 +38,7 @@ class SparkInitializer @Inject constructor(private val configuration: BuiltSpark
      * to the server settings.
      */
     fun startServer() {
+        val configuration = configBuilder.build()
         //============================Basic Configuration=================================
         Spark.port(configuration.port)
         Spark.exception(Exception::class.java) {

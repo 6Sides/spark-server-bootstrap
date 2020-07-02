@@ -64,7 +64,7 @@ class SparkInitializer @Inject constructor(private val configBuilder: SparkIniti
         }
 
         // Used for health checks by AWS ECS
-        Spark.get("/ping") { _: Request?, _: Response? -> "pong!" }
+        Spark.get("${configuration.graphqlEndpoint}/ping") { _: Request?, _: Response? -> "pong!" }
 
         if (configuration.graphQL == null) return
 

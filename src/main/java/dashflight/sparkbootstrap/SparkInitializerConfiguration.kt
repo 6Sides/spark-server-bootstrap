@@ -47,14 +47,14 @@ fun SparkInitializerConfiguration.build(): BuiltSparkInitializerConfiguration {
     val allowedHeaders = listOf(this.allowedHeaders, defaultAllowedHeaders).flatten().joinToString()
 
     val defaultCookieAttributes = when (runtimeEnvironment) {
-        RuntimeEnvironment.DEVELOPMENT, RuntimeEnvironment.STAGING -> "HttpOnly; SameSite=Strict; "
         RuntimeEnvironment.PRODUCTION -> "HttpOnly; SameSite=Strict; Secure; "
+        else -> "HttpOnly; SameSite=Strict; "
     }
 
     val originHeader = when (runtimeEnvironment) {
-        RuntimeEnvironment.DEVELOPMENT -> "http://dashflight.net"
         RuntimeEnvironment.STAGING -> "https://staging.dashflight.net"
         RuntimeEnvironment.PRODUCTION -> "https://www.dashflight.net"
+        else -> "http://dashflight.net"
     }
 
     val instrumentation = ChainedInstrumentation(

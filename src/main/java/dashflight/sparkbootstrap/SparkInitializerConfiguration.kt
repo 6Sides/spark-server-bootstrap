@@ -53,7 +53,7 @@ fun SparkInitializerConfiguration.build(): BuiltSparkInitializerConfiguration {
 
     val originHeader = when (runtimeEnvironment) {
         RuntimeEnvironment.STAGING -> "https://staging.dashflight.net"
-        RuntimeEnvironment.PRODUCTION -> "https://www.dashflight.net"
+        RuntimeEnvironment.PRODUCTION -> "https://admin.dashflight.net"
         else -> "http://dashflight.net"
     }
 
